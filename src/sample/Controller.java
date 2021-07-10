@@ -2,23 +2,25 @@ package sample;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 
 import java.io.File;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.Statement;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
+//import org.krysalis.barcode4j.impl.code128.Code128Bean;
+//import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
+
 
 public class Controller implements Initializable {
     private Stage stage;
@@ -30,7 +32,11 @@ public class Controller implements Initializable {
     @FXML
     Button back;
     @FXML
+    Button connectbutton;
+    @FXML
     Label wrong;
+    @FXML
+    private TextField Productcode;
     @FXML
     PasswordField password;
     @FXML
@@ -40,6 +46,17 @@ public class Controller implements Initializable {
     @FXML
     private ChoiceBox<String> Company = new ChoiceBox<>();
 
+    @FXML
+    private DatePicker mfd;
+    @FXML
+    private DatePicker lastDate;
+    @FXML
+    private TextArea techDetails;
+    @FXML
+    private TextArea comment;
+
+
+
     public String part;
 
     private final String[] partfor = {"Injector", "Rail", "Pump", "MISCELLANEOUS"};
@@ -48,6 +65,9 @@ public class Controller implements Initializable {
     private final String[] Rail = {"BOSCH", "VOLVO", "DELPHI", "MISCELLANEOUS"};
     private final String[] Injector = {"BOSCH", "DELPHI", "DENSO", "CONTI", "PEIZO", "UNIT INJECTOR", "VOLVO", "CAT", "MISCELLANEOUS"};
     private final String[] MISC = {"BOSCH", "DELPHI", "DENSO", "CONTI", "PEIZO", "UNIT INJECTOR", "VOLVO", "CAT", "ROTARY", "LINE PUMP", "CP", "VP", "MISCELLANEOUS"};
+
+    public Controller() {
+    }
 
     public void goLogin(javafx.event.ActionEvent actionEvent) throws IOException {
         root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("login.fxml")));
@@ -117,24 +137,20 @@ public class Controller implements Initializable {
         Part_Type.getItems().addAll(partType);
     }
 
-    public void selectCompany()
-    {
+    public void selectCompany() {
         part = partFor.getValue();
         if (part.equals("Rail")) {
             Company.getItems().clear();
             Company.getItems().addAll(Rail);
-        }
-        else{
+        } else {
             if (part.equals("Injector")) {
                 Company.getItems().clear();
                 Company.getItems().addAll(Injector);
-            }
-            else{
+            } else {
                 if (part.equals("PUMP")) {
                     Company.getItems().clear();
                     Company.getItems().addAll(Pump);
-                }
-                else{
+                } else {
                     Company.getItems().clear();
                     Company.getItems().addAll(MISC);
                 }
@@ -143,13 +159,15 @@ public class Controller implements Initializable {
         }
 
     }
+
     @FXML
     private Button choose;
-    public void singleFileChooser(ActionEvent event){
-        FileChooser fc=new FileChooser();
-        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files","*.jpg"));
-        File f=fc.showOpenDialog(null);
-        if(f!=null){
+
+    public void singleFileChooser(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image files", "*.jpg"));
+        File f = fc.showOpenDialog(null);
+        if (f != null) {
             choose.setText(f.getAbsolutePath());
         }
     }
@@ -184,5 +202,63 @@ public class Controller implements Initializable {
         scene = new Scene(root);
         stage.setScene(scene);
         stage.show();
+    }
+
+//    public void GenerateBarCode(ActionEvent actionEvent) {
+//        try {
+//            Code128Bean code128 = new Code128Bean();
+//            String image_name=Productcode.getText()+".png";
+//            String myString=Productcode.getText();
+//            code128.setHeight(15f);
+//            code128.setModuleWidth(0.3);
+//            code128.setQuietZone(10);
+//            code128.doQuietZone(true);
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            BitmapCanvasProvider canvas = new BitmapCanvasProvider(baos, "image/x-png", 300, BufferedImage.TYPE_BYTE_BINARY, false, 0);
+//            code128.generateBarcode(canvas, myString);
+//            canvas.finish();
+//            //write to png file
+//            FileOutputStream fos = new FileOutputStream("C:\\Users\\gopal2\\Downloads\\barcode4j" + image_name);
+//            fos.write(baos.toByteArray());
+//            fos.flush();
+//            fos.close();
+//        } catch (Exception e) {
+//            // TODO: handle exception
+//        }
+//    }
+
+    public void connectButton(ActionEvent event){
+        DatabaseConnection connectNow = new DatabaseConnection();
+        Connection connectDB = connectNow.getConnection();
+
+        String ProdCode = Productcode.getText();
+        String PartFor = partFor.getValue().toString();
+        String TypeOfPart = Part_Type.getValue().toString();
+        String company = Company.getValue().toString();
+        String ManufactureDate = mfd.getValue().toString();
+        String StockLocation = "pta nhi";
+        String LastDate = lastDate.getValue().toString();
+        String TechDetails = techDetails.getText();
+        String Comment = comment.getText();
+
+        //    ProductCode PartType partFor Company mfd lastDate techDetails comment
+        String connectQuery = "INSERT INTO `inventory_management`.`product_details` VALUES ("+ProdCode+",'"+PartFor+"','"+TypeOfPart+"','"+company+"','"+ManufactureDate+"','"+LastDate+"','"+StockLocation+"','"+TechDetails+"','"+Comment+"'"+")";
+//        System.out.print(connectQuery);
+
+        try{
+            Statement statement = connectDB.createStatement();
+            statement.executeUpdate(connectQuery);
+//            ResultSet queryOutput = statement.executeUpdate(connectQuery);
+
+//            while(queryOutput.next()){
+//
+//                showDetails.setText(queryOutput.getString("prod_code"));
+////                System.out.println(queryOutput.getString("prod_code"));
+//
+//
+//            }
+        } catch (Exception e) {
+             e.printStackTrace();
+          }
     }
 }
