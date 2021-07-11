@@ -68,11 +68,11 @@ public class modelTable {
 
 
     public modelTable(int pid, String pmfd, String pstock, String ptype, String pcompany, String plastdate) {
-        Pid = new SimpleIntegerProperty(pid);
-        Pmfd = new SimpleStringProperty(pmfd);
-        Pstock = new SimpleStringProperty(pstock);
-        Ptype = new SimpleStringProperty(ptype);
-        Pcompany = new SimpleStringProperty(pcompany);
-        Plastdate = new SimpleStringProperty(plastdate);
+        this.Pid = new SimpleIntegerProperty(pid);
+        this.Pmfd = new SimpleStringProperty(pmfd);
+        this.Pstock = new SimpleStringProperty(pstock);
+        this.Ptype = new SimpleStringProperty(ptype);
+        this.Pcompany = new SimpleStringProperty(pcompany);
+        this.Plastdate = new SimpleStringProperty(plastdate);
     }
 }

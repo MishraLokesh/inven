@@ -1,20 +1,28 @@
 package sample;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import java.sql.*;
 
 import java.io.File;
+import java.io.ObjectStreamClass;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.Statement;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import java.io.IOException;
 import java.util.Objects;
@@ -23,9 +31,19 @@ import java.util.Objects;
 
 
 public class Controller implements Initializable {
+    public TableView<modelTable> tableView=new TableView<>();
+    public TableColumn<modelTable,Integer> col_prodCode=new TableColumn<>();
+    public TableColumn<modelTable,String> col_mfd=new TableColumn<>();
+    public TableColumn<modelTable,String> col_company=new TableColumn<>();
+    public TableColumn<modelTable,String> col_lastDate=new TableColumn<>();
+    public TableColumn<modelTable,String> col_stockLocation=new TableColumn<>();
+    public TableColumn<modelTable,String> col_type=new TableColumn<>();
     private Stage stage;
     private Scene scene;
     private Parent root;
+    public ScrollBar VerticalScrollbar;
+
+
 
     @FXML
     Button submit;
@@ -54,6 +72,7 @@ public class Controller implements Initializable {
     private TextArea techDetails;
     @FXML
     private TextArea comment;
+
 
 
 
@@ -122,6 +141,7 @@ public class Controller implements Initializable {
         stage.show();
     }
 
+
     public void goThird(ActionEvent actionEvent) throws IOException {
         root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("third.fxml")));
         stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
@@ -130,12 +150,47 @@ public class Controller implements Initializable {
         stage.show();
     }
 
+    ObservableList<modelTable> observableList = FXCollections.observableArrayList(
+            new modelTable(5864, "2021-01-25", "lko", "goodType", "brandName", "2022-05-01")
+    );
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         partFor.getItems().addAll(partfor);
         Part_Type.getItems().addAll(partType);
+
+        col_prodCode.setCellValueFactory(new PropertyValueFactory<>("Pid"));
+        col_mfd.setCellValueFactory(new PropertyValueFactory<>("Pmfd"));
+        col_company.setCellValueFactory(new PropertyValueFactory<>("Pcompany"));
+        col_lastDate.setCellValueFactory(new PropertyValueFactory<>("Plastdate"));
+        col_stockLocation.setCellValueFactory(new PropertyValueFactory<>("Pstock"));
+        col_type.setCellValueFactory(new PropertyValueFactory<>("Ptype"));
+        tableView.setItems(observableList);
+
+        try {
+            DatabaseConnection connectNow = new DatabaseConnection();
+            Connection connectDB = connectNow.getConnection();
+
+            String connectQuery = "SELECT * FROM `inventory_management`.`product_details`";
+            Statement statement = connectDB.createStatement();
+            ResultSet queryOutput = statement.executeQuery(connectQuery);
+
+            while(queryOutput.next()) {
+                observableList.add(new modelTable(
+                        queryOutput.getInt("prod_code"),
+                        queryOutput.getString("mfd"),
+                        queryOutput.getString("last_date"),
+                        queryOutput.getString("stock_location"),
+                        queryOutput.getString("company"),
+                        queryOutput.getString("comment")));
+//                System.out.println(queryOutput.getString("prod_code"));
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
     }
+
 
     public void selectCompany() {
         part = partFor.getValue();
@@ -227,9 +282,31 @@ public class Controller implements Initializable {
 //        }
 //    }
 
+//    @FXML
+//    private AnchorPane myAnchorPane;
+
     public void connectButton(ActionEvent event){
         DatabaseConnection connectNow = new DatabaseConnection();
         Connection connectDB = connectNow.getConnection();
+//        Stage stage=(Stage) myAnchorPane.getScene().getWindow();
+
+//        Alert.AlertType type=Alert.AlertType.CONFIRMATION;
+//        Alert alert=new Alert(type,"");
+//
+//        alert.initModality(Modality.APPLICATION_MODAL);
+//        alert.initOwner(stage);
+//
+//        alert.getDialogPane().setContentText("Do you want to confirm?");
+//
+//        alert.getDialogPane().setHeaderText("You have given the correct information about the products.");
+//        Optional<ButtonType> result= alert.showAndWait();
+//        if(result.get()==ButtonType.OK)
+//        {
+//            System.out.println("Got it");
+//        }
+//        else if (result.get()==ButtonType.CANCEL){
+//            System.out.println("Cancelled");
+//        }
 
         String ProdCode = Productcode.getText();
         String PartFor = partFor.getValue().toString();
