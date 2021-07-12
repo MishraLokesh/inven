@@ -31,19 +31,10 @@ import java.util.Objects;
 
 
 public class Controller implements Initializable {
-    public TableView<modelTable> tableView=new TableView<>();
-    public TableColumn<modelTable,Integer> col_prodCode=new TableColumn<>();
-    public TableColumn<modelTable,String> col_mfd=new TableColumn<>();
-    public TableColumn<modelTable,String> col_company=new TableColumn<>();
-    public TableColumn<modelTable,String> col_lastDate=new TableColumn<>();
-    public TableColumn<modelTable,String> col_stockLocation=new TableColumn<>();
-    public TableColumn<modelTable,String> col_type=new TableColumn<>();
     private Stage stage;
     private Scene scene;
     private Parent root;
     public ScrollBar VerticalScrollbar;
-
-
 
     @FXML
     Button submit;
@@ -72,8 +63,6 @@ public class Controller implements Initializable {
     private TextArea techDetails;
     @FXML
     private TextArea comment;
-
-
 
 
     public String part;
@@ -150,46 +139,13 @@ public class Controller implements Initializable {
         stage.show();
     }
 
-    ObservableList<modelTable> observableList = FXCollections.observableArrayList(
-            new modelTable(5864, "2021-01-25", "lko", "goodType", "brandName", "2022-05-01")
-    );
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         partFor.getItems().addAll(partfor);
         Part_Type.getItems().addAll(partType);
-
-        col_prodCode.setCellValueFactory(new PropertyValueFactory<>("Pid"));
-        col_mfd.setCellValueFactory(new PropertyValueFactory<>("Pmfd"));
-        col_company.setCellValueFactory(new PropertyValueFactory<>("Pcompany"));
-        col_lastDate.setCellValueFactory(new PropertyValueFactory<>("Plastdate"));
-        col_stockLocation.setCellValueFactory(new PropertyValueFactory<>("Pstock"));
-        col_type.setCellValueFactory(new PropertyValueFactory<>("Ptype"));
-        tableView.setItems(observableList);
-
-        try {
-            DatabaseConnection connectNow = new DatabaseConnection();
-            Connection connectDB = connectNow.getConnection();
-
-            String connectQuery = "SELECT * FROM `inventory_management`.`product_details`";
-            Statement statement = connectDB.createStatement();
-            ResultSet queryOutput = statement.executeQuery(connectQuery);
-
-            while(queryOutput.next()) {
-                observableList.add(new modelTable(
-                        queryOutput.getInt("prod_code"),
-                        queryOutput.getString("mfd"),
-                        queryOutput.getString("last_date"),
-                        queryOutput.getString("stock_location"),
-                        queryOutput.getString("company"),
-                        queryOutput.getString("comment")));
-//                System.out.println(queryOutput.getString("prod_code"));
-            }
-        } catch (Exception e){
-            e.printStackTrace();
-        }
     }
+
 
 
     public void selectCompany() {
@@ -331,8 +287,6 @@ public class Controller implements Initializable {
 //
 //                showDetails.setText(queryOutput.getString("prod_code"));
 ////                System.out.println(queryOutput.getString("prod_code"));
-//
-//
 //            }
         } catch (Exception e) {
              e.printStackTrace();
